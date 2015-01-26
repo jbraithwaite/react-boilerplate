@@ -270,7 +270,6 @@ gulp.task('minifyplugins:production', function() {
     .pipe(gulp.dest(paths.public.js));
 });
 
-
 // Gulp - Express
 // ------------------------------------------------------------------
 var child = null, browserSyncConnected = false;
@@ -350,7 +349,6 @@ process.on('uncaughtException', function(err) {
   throw new Error(err);
 });
 
-
 // Gulp - notify
 // ------------------------------------------------------------------
 gulp.task('notify', function() {
@@ -368,7 +366,6 @@ gulp.task('watch', function() {
 gulp.task('build:css:watch', ['sass'], ready);
 gulp.task('express:watch', ['express'], ready);
 gulp.task('rebuild:css', ['sass'], ready);
-
 
 // Gulp - Production
 // ===================================================================
@@ -388,8 +385,6 @@ gulp.task('production', function(callback) {
     process.exit();
     callback();
   });
-
-
 });
 
 // Gulp - Default
@@ -397,5 +392,3 @@ gulp.task('production', function(callback) {
 gulp.task('default', function(callback) {
   runSequence('react:development', 'sass', 'minifyplugins:development', ['express', 'watch'], callback);
 });
-
-
