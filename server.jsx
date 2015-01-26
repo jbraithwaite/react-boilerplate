@@ -1,11 +1,16 @@
+// Set globals
 require('./globals/server');
 
+// Requires
+// ------------------------------------------------------------------
 var fs = require('fs');
 var path = require('path');
 var config = require('config');
+var routes = require('./app/routes.jsx');
+var package = require('./package.json');
 var express = require('express');
 var compression = require('compression');
-var expressBeautify = require('express-beautify')();
+var expressBeautify = require('express-beautify');
 
 var app = express();
 
@@ -14,20 +19,17 @@ app.set('view engine', 'jade');
 app.use(compression());
 app.use(express.static(path.join(process.cwd(), 'public')));
 
-var package = require('./package.json');
-
 // Let the config file overrule the environment
 var port = config.get('port') || process.env.PORT;
 var environment = config.get('environment') || process.env.NODE_ENV;
 
 // Only use expressBeautify on development
 if (environment == 'development') {
-  app.use(expressBeautify);
+  app.use(expressBeautify());
 }
 
-var routes = require('./app/routes.jsx');
-
-// Render the React application
+// React App - Rendering
+// ------------------------------------------------------------------
 var renderApp = function(req, res, cb) {
 
   // Create the router
@@ -55,7 +57,8 @@ var renderApp = function(req, res, cb) {
   });
 };
 
-/** CATCH-ALL ROUTE **/
+// Route - Catch all
+// ------------------------------------------------------------------
 app.get('*', function(req, res, next) {
   renderApp(req, res, function(err, html, token) {
 
@@ -68,7 +71,7 @@ app.get('*', function(req, res, next) {
     }
 
     res.render('index', {
-      title: 'React Boilerplate App',
+      title: package.description,
       appName: package.name,
       app: html,
       version: package.version,
@@ -79,28 +82,39 @@ app.get('*', function(req, res, next) {
   });
 });
 
-var server = app.listen(port, function() {
+// Start server
+// ------------------------------------------------------------------
+app.listen(port, function() {
   try {
+
+    // If we being run from gulp
+    if (process.env.FOR_GULP){
+      console.log('Express Server Started');
+    } else {
+      var name = package.name;
+      var dashes = '';
+      for (var i = 0; i < name.length; i++) dashes += '-';
+
+      console.log('\n');
+      console.log(',-' + dashes + '-,');
+      console.log('| ' + name +' |');
+      console.log('\'-'+ dashes + '-\'');
+      console.log('\n');
+      console.log('PORT: ' + port);
+      console.log('VERSION: '+ package.version);
+      console.log('ENVIRONMENT: ' + environment);
+      console.log('DATE: ' + (new Date).toString() + '\n');
+    }
+    // Notify gulp that express has been started. This is used for
+    // browser sync.
     process.send('CONNECTED');
   } catch(e) {}
 });
 
+// On Error
+// ------------------------------------------------------------------
 process.on('uncaughtException', function(err) {
   console.log(arguments);
   process.exit(0);
 });
-
-// If ran from gulp
-if (process.env.WHOST){
-  console.log('Express Server Started');
-} else {
-  console.log('\n\n');
-  console.log(",-------------,");
-  console.log('| App Started |');
-  console.log("'-------------'");
-  console.log('\n');
-  console.log('PORT: ' + port);
-  console.log('VERSION: '+ package.version);
-  console.log('ENVIRONMENT: ' + environment + '\n');
-}
 
