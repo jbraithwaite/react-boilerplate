@@ -3,10 +3,9 @@ html(lang="en")
   head
     link(rel="icon" type="image/png" href="/favicon.ico")/
 
-    if production
-      link(rel="stylesheet" href="/css/main.min.css" type="text/css")/
-    else
-      link(rel="stylesheet" href="/css/main.css" type="text/css")/
+    - var minified = (environment != 'development') ? '.min' : '';
+
+    link(rel="stylesheet" href="/css/main#{minified}.css" type="text/css")/
 
     title= title
   body
@@ -17,4 +16,18 @@ html(lang="en")
 
       .row
         .twelve.columns
-          footer version: #{version}
+          footer
+            strong version :&nbsp;
+            | #{version} •&nbsp;
+            strong environment :&nbsp;
+            | #{environment} •&nbsp;
+            strong app name :&nbsp;
+            | #{appName}
+
+  script(src="/js/external#{minified}.js")
+
+  if WHOST
+    script(src="http://#{WHOST}:#{WPORT}/scripts/bundle.js")
+  else
+    script(src="/js/#{appName}#{minified}.js")
+

@@ -1,13 +1,22 @@
 'use strict';
 
+require('../globals/client');
+
 var routes = require('./routes.jsx');
 
+var rootInstance = null;
 
 var InitializeRouter = function(View) {
-  React.render(<View />, document.getElementById('app-container'));
+  rootInstance = React.render(<View />, document.getElementById('app-container'));
 };
 
-if(Modernizr.history)
-  ReactRouter.run(routes, ReactRouter.HistoryLocation, InitializeRouter);
-else
-  ReactRouter.run(routes, InitializeRouter);
+if (module.hot) {
+  require('react-hot-loader/Injection').RootInstanceProvider.injectProvider({
+    getRootInstances: function () {
+      // Help React Hot Loader figure out the root component instances on the page:
+      return [rootInstance];
+    }
+  });
+}
+
+ReactRouter.run(routes, ReactRouter.HistoryLocation, InitializeRouter);

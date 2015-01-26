@@ -1,4 +1,4 @@
-require('./globals');
+require('./globals/server');
 
 var fs = require('fs');
 var path = require('path');
@@ -44,12 +44,10 @@ var renderApp = function(req, res, cb) {
 
   // Run the router
   router.run(function(Handler, state) {
-
     var err = null;
-
     var displayName = state.routes[state.routes.length - 1].handler.displayName;
 
-    if(displayName === 'PageNotFound') {
+    if (displayName === 'PageNotFound') {
       err = {notFound: true};
     }
 
@@ -71,9 +69,12 @@ app.get('*', function(req, res, next) {
 
     res.render('index', {
       title: 'React Boilerplate App',
+      appName: package.name,
       app: html,
       version: package.version,
-      production: environment == 'production'
+      environment: environment,
+      WPORT: process.env.WPORT,
+      WHOST: process.env.WHOST
     });
   });
 });
@@ -89,11 +90,17 @@ process.on('uncaughtException', function(err) {
   process.exit(0);
 });
 
-console.log('\n');
-console.log(",-------------,");
-console.log('| App Started |');
-console.log("'-------------'");
-console.log('\n');
-console.log('PORT: ' + port);
-console.log('VERSION: '+ package.version);
-console.log('ENVIRONMENT: ' + environment + '\n');
+// If ran from gulp
+if (process.env.WHOST){
+  console.log('Express Server Started');
+} else {
+  console.log('\n\n');
+  console.log(",-------------,");
+  console.log('| App Started |');
+  console.log("'-------------'");
+  console.log('\n');
+  console.log('PORT: ' + port);
+  console.log('VERSION: '+ package.version);
+  console.log('ENVIRONMENT: ' + environment + '\n');
+}
+
