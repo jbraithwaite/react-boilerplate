@@ -24,10 +24,10 @@ html(lang="en")
             strong app name :&nbsp;
             | #{appName}
 
-  script(src="/js/external#{minified}.js")
+    script(src="/js/external#{minified}.js")
 
-  if WHOST
-    script(src="http://#{WHOST}:#{WPORT}/scripts/bundle.js")
-  else
-    script(src="/js/#{appName}#{minified}.js")
+    if WHOST
+      script(src="http://#{WHOST}:#{WPORT}/scripts/bundle.js")
+    else
+      script(src="/js/#{appName}#{minified}.js")
 
