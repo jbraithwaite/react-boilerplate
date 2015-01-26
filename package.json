@@ -6,7 +6,18 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Justin Braithwaite",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jbraithwaite/react-boilerplate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jbraithwaite/react-boilerplate/issues"
+  },
+  "author": {
+    "name": "Justin Braithwaite",
+    "email": "justinbraithwaite@gmail.com",
+    "url": "http://www.projectnine.io/"
+  },
   "license": "MIT",
   "copyright": "(c) 2015 Justin Braithwaite",
   "dependencies": {
