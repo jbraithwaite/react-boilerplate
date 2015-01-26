@@ -4,7 +4,7 @@
 - Server side React rendering
 - In development, great debugging experience (live edit React components, fast compiles, simple gulp file, etc)
 - In production, best practices for deployment (ugify, gzipped, etc)
-- Skeleton for future React project
+- Skeleton for future React projects
 
 ## Installation 
 ```bash
