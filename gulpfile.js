@@ -45,8 +45,6 @@ var paths = {
   }
 };
 
-
-
 var banner = function() {
   return '/*! '+package.name+' - v'+package.version+' - '+gutil.date(new Date(), "yyyy-mm-dd")+
           ' [copyright: '+package.copyright+']'+' */';
@@ -187,7 +185,7 @@ gulp.task('express', function() {
   if(child) child.kill();
   child = child_process.spawn(process.execPath, ['./index.js'], {
     env: {
-      NODE_ENV: process.env.NODE_ENV || 'development',
+      NODE_ENV: environment,
       APP: appName,
       PORT: port,
       WPORT: wport,
