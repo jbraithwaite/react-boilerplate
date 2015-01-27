@@ -245,7 +245,7 @@ gulp.task('uglify', ['react:compile'], function() {
  * (on the client: window)
  *
  * To have access to the resources on the server and client, edit
- * `./globals/client.js` and `./globals/server`
+ * `./globals/universal.js` and `./globals/server`
  */
 gulp.task('minifyplugins:development', function() {
   gulp.src([
