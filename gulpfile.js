@@ -380,7 +380,7 @@ gulp.task('production', function(callback) {
     );
 
     console.log('\nTo start the Express application:\n');
-    console.log('node index.js\n');
+    console.log('NODE_ENV=production node index.js\n');
     // Exit
     process.exit();
     callback();

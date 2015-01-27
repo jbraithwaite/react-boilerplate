@@ -17,6 +17,6 @@ gulp
 # Build assets for production
 gulp production
 
-# Start server in production (make sure your config file is set properly)
-node index.js
+# Start server in production
+NODE_ENV=production node index.js
 ```
