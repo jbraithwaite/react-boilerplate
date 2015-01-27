@@ -85,7 +85,7 @@ app.get('*', function(req, res, next) {
 // Start server
 // ------------------------------------------------------------------
 app.listen(port, function() {
-  // If we being run from gulp
+  // If this is being run from gulp
   if (process.env.FOR_GULP){
     console.log('Express Server Started');
 
