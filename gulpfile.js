@@ -163,9 +163,7 @@ gulp.task('react:development', function() {
     module: {
       loaders: [
         {test: /\.txt$/, loaders: ['raw']},
-        {test: /\package\.json$/, loaders: ['json']},
-        {test: /\/app\/(.*?)\.txt$/, loaders: ['raw']},
-        {test: /\/app\/(.*?)\.json$/, loaders: ['json']},
+        {test: /\.json$/, loaders: ['json']},
         {test: /[\.jsx|\.js]$/, loaders: ['react-hot', 'jsx-loader?harmony']}
       ]
     },
@@ -201,15 +199,14 @@ gulp.task('react:compile', function() {
       cache: true,
       module: {
         loaders: [
-          {test: /\.txt$/, loaders: ['raw']},
-          {test: /\package\.json$/, loaders: ['json']},
-          {test: /\/app\/(.*?)\.txt$/, loaders: ['raw']},
-          {test: /\/app\/(.*?)\.json$/, loaders: ['json']},
+          {test: /\.json$/, loaders: ['json']},
           {test: /[\.jsx|\.js]$/, loaders: ['jsx-loader?harmony']}
         ]
       },
       externals: {
-        'react': 'React'
+        "react": "React",
+        "react/addons": "React",
+        "react-router": "ReactRouter"
       }
     }))
     .pipe(rename(appName+'.js'))
@@ -245,7 +242,7 @@ gulp.task('uglify', ['react:compile'], function() {
  * (on the client: window)
  *
  * To have access to the resources on the server and client, edit
- * `./globals/universal.js` and `./globals/server`
+ * `./globals/client.js` and `./globals/server`
  */
 gulp.task('minifyplugins:development', function() {
   gulp.src([
@@ -380,10 +377,10 @@ gulp.task('production', function(callback) {
     );
 
     console.log('\nTo start the Express application:\n');
-    console.log('NODE_ENV=production node index.js\n');
+    console.log('node index.js\n');
+    callback();
     // Exit
     process.exit();
-    callback();
   });
 });
 

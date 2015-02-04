@@ -1,14 +1,13 @@
-// Set globals
-require('./globals/server');
-
 // Requires
 // ------------------------------------------------------------------
 var fs = require('fs');
 var path = require('path');
+var React = require('react/addons');
 var config = require('config');
 var routes = require('./app/routes.jsx');
 var package = require('./package.json');
 var express = require('express');
+var ReactRouter = require('react-router');
 var compression = require('compression');
 var expressBeautify = require('express-beautify');
 

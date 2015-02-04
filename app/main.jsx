@@ -1,6 +1,6 @@
 'use strict';
-
-require('../globals/client');
+var React = require('react/addons');
+var ReactRouter = require('react-router');
 
 var routes = require('./routes.jsx');
 

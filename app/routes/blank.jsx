@@ -1,3 +1,7 @@
+'use strict';
+var React = require('react/addons');
+var ReactRouter = require('react-router');
+
 var BlankPage = React.createClass({
 
   getInitialState: function(){

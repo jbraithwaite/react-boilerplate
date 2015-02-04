@@ -21,7 +21,9 @@ gulp production
 NODE_ENV=production node index.js
 ```
 
-## Adding A 3rd party plugin
+## Adding A 3rd party libraries
+
+If we wanted to add backbone for example.
 
 ```bash
 npm install --save backbone
@@ -39,10 +41,10 @@ edit `gulpfile.js`, look for `minifyplugins`  and in the list of sources add:
 './node_modules/backbone/dist/backbone.min.js'
 ```
 
-In `global/server` add 
+In the same `gulpfile.js` look for the task `react:compile` and add 
 
 ```js
-global.Backbone = require('backbone');
-```
-
-After you run `gulp` (so that `minifyplugins` runs) you can use `Backbone` anywhere in the app (Server or Client) by just calling `Backbone`
+externals: {
+    "backbone": "Backbone",
+    ...
+}

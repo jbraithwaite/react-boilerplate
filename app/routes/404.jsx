@@ -1,3 +1,6 @@
+'use strict';
+var React = require('react/addons');
+
 var PageNotFound = React.createClass({
   render: function() {
     return (
