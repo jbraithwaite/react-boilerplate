@@ -12,10 +12,10 @@
 npm install
 
 # Start development
-gulp
+npm run develop
 
 # Build assets for production
-gulp production
+npm run production
 
 # Start server in production
 NODE_ENV=production node index.js
