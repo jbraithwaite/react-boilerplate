@@ -33,7 +33,7 @@ var environment = config.get('environment') || process.env.NODE_ENV;
 // ------------------------------------------------------------------
 var paths = {
   // Watch - express
-  index: ['index.js', 'server.jsx'],
+  index: ['index.js'],
 
   // Watch - browsersync
   jsx: ['app/**/*.jsx'],
@@ -240,9 +240,6 @@ gulp.task('uglify', ['react:compile'], function() {
  *
  * The plugins will attached at the global namepace
  * (on the client: window)
- *
- * To have access to the resources on the server and client, edit
- * `./globals/client.js` and `./globals/server`
  */
 gulp.task('minifyplugins:development', function() {
   gulp.src([
