@@ -31,7 +31,7 @@ var webpackFile = config.get('webpack.file');
 var webpackPath = config.get('webpack.path');
 var environment = config.get('environment') || process.env.NODE_ENV;
 
-// Paths (and for watch)
+// Paths (feel free to edit)
 // ------------------------------------------------------------------
 var paths = {
   // Watch - express
@@ -54,12 +54,15 @@ var paths = {
     font : './public/font'
   },
 
-  // To increase speed, we concat the 3rd part plugins into a file
-  // "external.js" and serve that outside of the React App. This
-  // file changes a lot less often then the App will.
+  // Why bloat our "application.js" file with third party plugins?
+  // If we move these files to external.js, this file can be more aggresively
+  // cached by the user's browser since it won't change as often as our
+  // "application.js" file will. This is a two step process.
   //
-  // The plugins will attached at the global namepace
-  // (on the client: window)
+  // Step one: Add the files to both dev and pro below
+  // (make sure to link to the minified version in production)
+  //
+  // Step two: See externals below to make sure the file is not included.
   minifyplugins : {
     development : [
       './node_modules/react/dist/react-with-addons.js',
@@ -75,8 +78,11 @@ var paths = {
 // Webpack config
 // ------------------------------------------------------------------
 
-// These files do not need to be included on the client since they are bundles in external.js
-// See paths.minifyplugins above.
+// If you require('module-name') and want to take advantage of moving this file
+// to external.js (instead of having it bundled with our "application.js")
+// we add it to the extenals of webpack.
+//
+// For example, we would add "module-name" : "ModuleOnGlobalNameSpace"
 var externals = {
   "react": "React",
   "react/addons": "React",
@@ -321,7 +327,7 @@ gulp.task('express', function() {
       gutil.log(gutil.colors.bgMagenta(gutil.colors.white(msg)));
 
       browserSync({
-        proxy: 'localhost',
+        proxy: 'localhost:' + port,
         port: port,
         // Don't automatically open a new window
         open: false

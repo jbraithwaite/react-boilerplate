@@ -23,28 +23,7 @@ NODE_ENV=production node index.js
     
 ## Adding A 3rd party libraries
 
-If we wanted to add backbone for example.
+Why bloat our "application.js" file with third party plugins? If we move these files to `external.js`, this file can be more aggresively cached by the user's browser since it won't change as often as our "application.js" file will. This is a two step process. In `gulpfile.js`:
 
-```bash
-npm install --save backbone
-```
-
-edit `gulpfile.js`, look for `minifyplugins`  and in the list of sources add:
-
-```js
-// in minifyplugins:development
-'./node_modules/backbone/dist/backbone.js'
-```
-
-```js
-// in minifyplugins:production
-'./node_modules/backbone/dist/backbone.min.js'
-```
-
-In the same `gulpfile.js` look for the task `react:compile` and add 
-
-```js
-externals: {
-    "backbone": "Backbone",
-    ...
-}
+- Step one: Add the files to both `paths.minifyplugins.development` and `paths.minifyplugins.production`  (make sure to link to the minified version in production)
+- Step two: Configure `webpack` to not bundle those modules. This can be done by editing `externals`

@@ -7,7 +7,8 @@ var PageNotFound = React.createClass({
     return (
       <div>
         <h1>404</h1>
-        <p>The page you were looking for could not be found.</p>
+        <p>The page you were looking for could not be found.
+        Notice how the http status code is <code>404</code></p>
       </div>
     );
   }

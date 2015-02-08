@@ -4,7 +4,7 @@
   "port" : 1122,
 
   "webpack" : {
-    "port" : 8078,
+    "port" : 8079,
     "host" : "localhost",
     "file" : "bundle.js",
     "path" : "/scripts/"
