@@ -9,7 +9,7 @@ var Footer = React.createClass({
     return (
       <footer className="row" style={{marginBottom: 20}}>
         <div className="twelve columns">
-          This is <code>footer.jsx</code> rendered inside of <code>index.jsx</code>
+          <a className="button button-primary" href="https://github.com/jbraithwaite/react-boilerplate" target="_blank">View on Github.com</a>
         </div>
       </footer>
     );

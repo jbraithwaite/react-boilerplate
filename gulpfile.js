@@ -55,9 +55,10 @@ var paths = {
   },
 
   // Why bloat our "application.js" file with third party plugins?
-  // If we move these files to external.js, this file can be more aggresively
-  // cached by the user's browser since it won't change as often as our
-  // "application.js" file will. This is a two step process.
+  // If we move these files to `external.js`, it won't change as often as our
+  // "application.js" and can be more aggresively cached by the user's browser.
+  //
+  // This is a two step process.
   //
   // Step one: Add the files to both dev and pro below
   // (make sure to link to the minified version in production)

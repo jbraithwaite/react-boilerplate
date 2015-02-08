@@ -4,6 +4,7 @@ var React = require('react/addons');
 var ReactRouter = require('react-router');
 var RouteHandler = ReactRouter.RouteHandler;
 
+var Header = require('../components/header.jsx');
 var Footer = require('../components/footer.jsx');
 
 // The outer wrapper for the Router
@@ -12,9 +13,10 @@ var Index = React.createClass({
   render: function() {
     return (
       <div className="container">
-        <div className="row">
+        <Header/>
+        <main className="row">
           <RouteHandler className="twelve columns" {...this.props}/>
-        </div>
+        </main>
         <Footer/>
       </div>
     );

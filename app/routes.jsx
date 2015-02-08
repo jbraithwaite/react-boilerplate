@@ -9,13 +9,12 @@ var NotFoundRoute = ReactRouter.NotFoundRoute;
 var RouteHandler = ReactRouter.RouteHandler;
 
 var notfound = require('./routes/404.jsx');
-var blank = require('./routes/blank.jsx');
-var index = require('./routes/index.jsx');
+var home = require('./routes/home.jsx');
+var index = require('./routes/_index.jsx');
 
 module.exports = (
-  <Route handler={index}>
-    <DefaultRoute handler={blank} />
-    <Route path='/' handler={blank} />
+  <Route handler={index} path='/'>
+    <DefaultRoute handler={home} />
     <NotFoundRoute handler={notfound} />
   </Route>
 );
