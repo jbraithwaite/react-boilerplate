@@ -1,6 +1,6 @@
 {
   "appName" : "React Boilerplate",
-  "environment" : "production",
+  "environment" : "development",
   "port" : 1122,
 
   "webpack" : {
