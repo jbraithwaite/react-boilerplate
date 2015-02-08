@@ -78,8 +78,11 @@ app.get('*', function(req, res, next) {
       app: html,
       version: package.version,
       environment: environment,
-      WPORT: process.env.WPORT,
-      WHOST: process.env.WHOST
+      HOT_RELOAD: process.env.HOT_RELOAD,
+      webpackPort: config.get('webpack.port'),
+      webpackHost: config.get('webpack.host'),
+      webpackFile: config.get('webpack.file'),
+      webpackPath: config.get('webpack.path')
     });
   });
 });
@@ -88,7 +91,7 @@ app.get('*', function(req, res, next) {
 // -----------------------------------------------------------------------------
 app.listen(port, function() {
   // If this is being run from gulp
-  if (process.env.FOR_GULP){
+  if (process.env.HOT_RELOAD){
     console.log('Express Server Started');
 
     // Notify gulp that express has been started.

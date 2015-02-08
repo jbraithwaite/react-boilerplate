@@ -15,12 +15,12 @@ npm install
 npm run develop
 
 # Build assets for production
-npm run production
+npm run compile
 
 # Start server in production
 NODE_ENV=production node index.js
 ```
-
+    
 ## Adding A 3rd party libraries
 
 If we wanted to add backbone for example.

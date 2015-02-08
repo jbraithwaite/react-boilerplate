@@ -25,15 +25,17 @@ var WebpackDevServer = require('webpack-dev-server');
 // ------------------------------------------------------------------
 var appName = package.name;
 var port = config.get('port') || process.env.PORT;
-var wport = config.get('wport');
-var whost = config.get('whost');
+var webpackPort = config.get('webpack.port');
+var webpackHost = config.get('webpack.host');
+var webpackFile = config.get('webpack.file');
+var webpackPath = config.get('webpack.path');
 var environment = config.get('environment') || process.env.NODE_ENV;
 
 // Paths (and for watch)
 // ------------------------------------------------------------------
 var paths = {
   // Watch - express
-  index: ['index.js'],
+  express: 'index.js',
 
   // Watch - browsersync
   jsx: ['app/**/*.jsx'],
@@ -41,8 +43,8 @@ var paths = {
   // Watch - browsersync
   scss: ['stylesheets/**/*.scss'],
 
-  // Path - The start of the React App
-  reactEntryPoint: './app/main.jsx',
+  // Path - The start of the React App (the router)
+  reactEntryPoint: './app/router.jsx',
 
   // Path - Public folders
   public : {
@@ -50,8 +52,42 @@ var paths = {
     css : './public/css',
     img : './public/img',
     font : './public/font'
+  },
+
+  // To increase speed, we concat the 3rd part plugins into a file
+  // "external.js" and serve that outside of the React App. This
+  // file changes a lot less often then the App will.
+  //
+  // The plugins will attached at the global namepace
+  // (on the client: window)
+  minifyplugins : {
+    development : [
+      './node_modules/react/dist/react-with-addons.js',
+      './node_modules/react-router/dist/react-router.js'
+    ],
+    production : [
+      './node_modules/react/dist/react-with-addons.min.js',
+      './node_modules/react-router/dist/react-router.min.js'
+    ]
   }
 };
+
+// Webpack config
+// ------------------------------------------------------------------
+
+// These files do not need to be included on the client since they are bundles in external.js
+// See paths.minifyplugins above.
+var externals = {
+  "react": "React",
+  "react/addons": "React",
+  "react-router": "ReactRouter"
+};
+
+// The loaders for webpack and webpack dev server
+var loaders = [
+  {test: /\.json$/, loaders: ['json']},
+  {test: /[\.jsx|\.js]$/, loaders: ['react-hot', 'jsx-loader?harmony']}
+];
 
 // Utility Functions
 // ------------------------------------------------------------------
@@ -140,36 +176,30 @@ gulp.task('minifycss', function() {
 /**
  * React Development
  *
- * Uses WebpackDevServer to create a proxy to the express
+ * Uses WebpackDevServer to recompile the React app (w/ hotloading)
  */
 gulp.task('react:development', function() {
   var wconfig = {
     cache: true,
     entry: [
-      'webpack-dev-server/client?http://'+whost+':'+wport,
+      'webpack-dev-server/client?http://' + webpackHost + ':' + webpackPort,
       'webpack/hot/only-dev-server',
       paths.reactEntryPoint
     ],
     output: {
       path: process.cwd(),
-      contentBase: 'http://'+whost+':'+wport,
-      filename: 'bundle.js',
-      publicPath: 'http://'+whost+':'+wport+'/scripts/'
+      contentBase: 'http://' + webpackHost + ':' + webpackPort,
+      filename: webpackFile,
+      publicPath: 'http://' + webpackHost + ':' + webpackPort + webpackPath
     },
     plugins: [
       new dwebpack.HotModuleReplacementPlugin(),
       new dwebpack.NoErrorsPlugin()
     ],
     module: {
-      loaders: [
-        {test: /\.txt$/, loaders: ['raw']},
-        {test: /\.json$/, loaders: ['json']},
-        {test: /[\.jsx|\.js]$/, loaders: ['react-hot', 'jsx-loader?harmony']}
-      ]
+      loaders: loaders
     },
-    externals: {
-      'react': 'React'
-    }
+    externals: externals,
   };
 
   var server = new WebpackDevServer(dwebpack(wconfig), {
@@ -182,7 +212,7 @@ gulp.task('react:development', function() {
     }
   });
 
-  server.listen(wport, function (err, result) {
+  server.listen(webpackPort, function (err, result) {
     if (err) console.log(err);
     gutil.log('Webpack Dev Server started. Compiling...');
   });
@@ -196,18 +226,11 @@ gulp.task('react:development', function() {
 gulp.task('react:compile', function() {
   return gulp.src(paths.reactEntryPoint)
     .pipe(webpack({
-      cache: true,
+      cache: false,
       module: {
-        loaders: [
-          {test: /\.json$/, loaders: ['json']},
-          {test: /[\.jsx|\.js]$/, loaders: ['jsx-loader?harmony']}
-        ]
+        loaders: loaders
       },
-      externals: {
-        "react": "React",
-        "react/addons": "React",
-        "react-router": "ReactRouter"
-      }
+      externals: externals
     }))
     .pipe(rename(appName+'.js'))
     .pipe(gulp.dest(paths.public.js));
@@ -242,10 +265,7 @@ gulp.task('uglify', ['react:compile'], function() {
  * (on the client: window)
  */
 gulp.task('minifyplugins:development', function() {
-  gulp.src([
-    './node_modules/react/dist/react-with-addons.js',
-    './node_modules/react-router/dist/react-router.js'
-  ]).pipe(concat('external.js'))
+  gulp.src(paths.minifyplugins.development).pipe(concat('external.js'))
     .pipe(gulp.dest(paths.public.js));
 });
 
@@ -257,10 +277,7 @@ gulp.task('minifyplugins:development', function() {
  * as well. Resulting in smaller file.
  */
 gulp.task('minifyplugins:production', function() {
-  gulp.src([
-    './node_modules/react/dist/react-with-addons.min.js',
-    './node_modules/react-router/dist/react-router.min.js'
-  ]).pipe(concat('external.min.js'))
+  gulp.src(paths.minifyplugins.production).pipe(concat('external.min.js'))
     .pipe(gulp.dest(paths.public.js));
 });
 
@@ -275,36 +292,21 @@ gulp.task('express', function() {
   // Create a new child
   child = child_process.spawn(process.execPath, ['./index.js'], {
     env: {
-      NODE_ENV: environment,
-      APP: appName,
-      FOR_GULP: true,
-      PORT: port,
-      WPORT: wport,
-      WHOST: whost
+      // We are hotloading
+      HOT_RELOAD: true,
     },
+    // http://nodejs.org/api/child_process.html#child_process_options_stdio
     stdio: ['ipc']
   });
 
   // Log standard out
   child.stdout.on('data', function(data) {
-    gutil.log(
-      gutil.colors.bgCyan(
-        gutil.colors.blue(
-            data.toString().trim()
-        )
-      )
-    );
+    gutil.log(gutil.colors.bgCyan(gutil.colors.blue(data.toString().trim())));
   });
 
   // Log standard error
   child.stderr.on('data', function(data) {
-    gutil.log(
-      gutil.colors.bgRed(
-        gutil.colors.white(
-          data.toString().trim()
-        )
-      )
-    );
+    gutil.log(gutil.colors.bgRed(gutil.colors.white(data.toString().trim())));
     browserSync.notify('ERROR: ' + data.toString().trim(), 5000);
   });
 
@@ -315,14 +317,14 @@ gulp.task('express', function() {
     // starts listening. If we get that message and browser sync has
     // not been established
     if(m === 'CONNECTED' && !browserSyncConnected) {
-      gutil.log(
-        gutil.colors.bgMagenta(
-          gutil.colors.white('Server spawned! Starting proxy...')
-        )
-      );
+      var msg = 'Server spawned! Starting proxy...';
+      gutil.log(gutil.colors.bgMagenta(gutil.colors.white(msg)));
+
       browserSync({
-        proxy: 'localhost:' + port,
-        port: port
+        proxy: 'localhost',
+        port: port,
+        // Don't automatically open a new window
+        open: false
       }, function() {
         browserSyncConnected = true;
       });
@@ -361,9 +363,9 @@ gulp.task('build:css:watch', ['sass'], ready);
 gulp.task('express:watch', ['express'], ready);
 gulp.task('rebuild:css', ['sass'], ready);
 
-// Gulp - Production
+// Gulp - Compile
 // ===================================================================
-gulp.task('production', function(callback) {
+gulp.task('compile', function() {
   runSequence('sass', 'minifycss', 'minifyplugins:production', 'uglify', function() {
     gutil.log(
       gutil.colors.bgMagenta(
@@ -374,8 +376,7 @@ gulp.task('production', function(callback) {
     );
 
     console.log('\nTo start the Express application:\n');
-    console.log('node index.js\n');
-    callback();
+    console.log('node ' + paths.express + '\n');
     // Exit
     process.exit();
   });

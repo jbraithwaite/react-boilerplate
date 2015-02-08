@@ -1,7 +1,13 @@
 {
   "appName" : "React Boilerplate",
-  "environment" : "development",
+  "environment" : "production",
   "port" : 1122,
-  "wport" : 8079,
-  "whost" : "localhost"
+
+  "webpack" : {
+    "port" : 8078,
+    "host" : "localhost",
+    "file" : "bundle.js",
+    "path" : "/scripts/"
+  }
+
 }
