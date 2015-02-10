@@ -55,7 +55,7 @@ var renderApp = function(req, res, cb) {
       err = {notFound: true};
     }
 
-    cb(err, React.renderToString(React.createElement(Handler)));
+    cb(err, React.renderToString(React.createElement(Handler, {params: state.params})));
   });
 };
 

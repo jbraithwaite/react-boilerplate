@@ -2,13 +2,11 @@
 
 var React = require('react/addons');
 var ReactRouter = require('react-router');
-
 var routes = require('./routes.jsx');
-
 var rootInstance = null;
 
-var InitializeRouter = function(View) {
-  rootInstance = React.render(<View />, document.getElementById('app-container'));
+var InitializeRouter = function(View, state) {
+  rootInstance = React.render(<View params={state.params}/>, document.getElementById('app-container'));
 };
 
 // https://github.com/gaearon/react-hot-loader/tree/master/docs#usage-with-external-react
