@@ -29,7 +29,6 @@
     "express": "^4.11.2",
     "express-beautify": "^0.1.2",
     "jade": "^1.9.2",
-    "json-loader": "^0.5.1",
     "jsx-loader": "^0.12.2",
     "node-jsx": "^0.12.4",
     "react": "^0.12.2",

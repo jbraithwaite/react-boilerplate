@@ -92,7 +92,6 @@ var externals = {
 
 // The loaders for webpack and webpack dev server
 var loaders = [
-  {test: /\.json$/, loaders: ['json']},
   {test: /[\.jsx|\.js]$/, loaders: ['react-hot', 'jsx-loader?harmony']}
 ];
 
