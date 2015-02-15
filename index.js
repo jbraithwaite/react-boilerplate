@@ -36,11 +36,17 @@ var renderApp = function(req, res, cb) {
 
   // Create the router
   var router = ReactRouter.create({
+
+    // All of the routes for the application
     routes: routes,
+
+    // The current requested URL
     location: req.url,
+
     onAbort: function(redirect) {
       cb({redirect: redirect});
     },
+
     onError: function(err) {
       console.log(err);
     }
@@ -49,12 +55,20 @@ var renderApp = function(req, res, cb) {
   // Run the router
   router.run(function(Handler, state) {
     var err = null;
+
+    // This is a hack way of figuring out if a route should 404. We check the
+    // display name of the last matching route.
     var displayName = state.routes[state.routes.length - 1].handler.displayName;
 
+    // If the display name is `PageNotFound` (what is returned in `404.jsx`)
     if (displayName === 'PageNotFound') {
+
+      // We set the error to not found
       err = {notFound: true};
     }
 
+    // Not using JSX here because it's nice to have a plain .js file for index.
+    // Make sure to match the params the same way you do in your `router.jsx`
     cb(err, React.renderToString(React.createElement(Handler, {params: state.params})));
   });
 };
@@ -62,16 +76,21 @@ var renderApp = function(req, res, cb) {
 // Route - Catch all
 // -----------------------------------------------------------------------------
 app.get('*', function(req, res, next) {
+
+  // Time to render the React App.
   renderApp(req, res, function(err, html, token) {
 
+    // There was a redirect
     if (err && err.redirect){
       return res.redirect(err.redirect.to);
     }
 
+    // Page wasn't found
     if (err && err.notFound){
       res.status(404);
     }
 
+    // Render the jade template, passing the required information
     res.render('index', {
       title: package.description,
       appName: package.name,
@@ -92,13 +111,12 @@ app.get('*', function(req, res, next) {
 app.listen(port, function() {
   // If this is being run from gulp
   if (process.env.HOT_RELOAD){
+
     console.log('Express Server Started');
 
     // Notify gulp that express has been started.
     // This is used for browser sync.
-    try {
-      process.send('CONNECTED');
-    } catch(e) {}
+    try { process.send('CONNECTED'); } catch(e) {}
   } else {
     var name = package.name;
     var dashes = '';
