@@ -3,7 +3,7 @@
 var React = require('react/addons');
 
 // The outer wrapper for the Router
-var Footer = React.createClass({
+var Header = React.createClass({
 
   render: function() {
     return (
@@ -15,4 +15,4 @@ var Footer = React.createClass({
 
 });
 
-module.exports = Footer;
+module.exports = Header;
