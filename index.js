@@ -22,8 +22,8 @@ app.use(compression());
 app.use(express.static(path.join(process.cwd(), 'public')));
 
 // Let the config file overrule the environment
-var port = config.get('port') || process.env.PORT;
-var environment = config.get('environment') || process.env.NODE_ENV;
+var port = config.get('port');
+var environment = config.get('environment');
 
 // Only use expressBeautify on development
 if (environment == 'development') {
