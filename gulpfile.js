@@ -5,6 +5,7 @@ var path = require('path');
 var gulp = require('gulp');
 var sass = require('gulp-sass');
 var watch = require('watch');
+var chalk = require('chalk');
 var gutil = require('gulp-util');
 var config = require('config');
 var insert = require('gulp-insert');
@@ -105,36 +106,35 @@ var banner = function() {
     ' [copyright: '+package.copyright+']' + ' */';
 };
 
-// Ready function for Watch
-function ready() {
-  gutil.log(
-    gutil.colors.bgMagenta(
-      gutil.colors.white(
-        gutil.colors.bold('[          STATUS: READY          ]')
-      )
-    )
-  );
+function boldLog(data){
+  gutil.log(chalk.white.bgMagenta.bold(data));
 }
 
 // Browser Sync
 var createMonitor = function() {
-  var callback = function(f) {
-    browserSync.reload(f);
+
+  var callback = function(file) {
+    browserSync.reload(file);
   };
 
-  return function(p) {
-    watch.createMonitor(p, function(m) {
-      m.on('created', callback);
-      m.on('changed', callback);
-      m.on('removed', callback);
+  return function(path) {
+    watch.createMonitor(path, function(monitor) {
+      monitor.on('created', callback);
+      monitor.on('changed', callback);
+      monitor.on('removed', callback);
     });
   };
 };
 
 if(environment == 'development') {
-  var m = createMonitor();
-  m(paths.public.img);
+  var monitors = {};
+
+  monitors.images = createMonitor();
+  monitors.images(paths.public.img);
+
+  // Add any additonal monitors here.
 }
+
 
 // Gulp - Stylesheets
 // ------------------------------------------------------------------
@@ -220,7 +220,7 @@ gulp.task('react:development', function() {
 
   server.listen(webpackPort, function (err, result) {
     if (err) console.log(err);
-    gutil.log('Webpack Dev Server started. Compiling...');
+    boldLog('Webpack Dev Server started');
   });
 });
 
@@ -307,13 +307,14 @@ gulp.task('express', function() {
 
   // Log standard out
   child.stdout.on('data', function(data) {
-    gutil.log(gutil.colors.bgCyan(gutil.colors.blue(data.toString().trim())));
+    boldLog(data.toString().trim());
   });
 
   // Log standard error
   child.stderr.on('data', function(data) {
-    gutil.log(gutil.colors.bgRed(gutil.colors.white(data.toString().trim())));
-    browserSync.notify('ERROR: ' + data.toString().trim(), 5000);
+    data = data.toString().trim();
+    gutil.log(chalk.white.bgRed.bold(data));
+    browserSync.notify('ERROR: ' + data, 5000);
   });
 
   // On a message from child
@@ -323,8 +324,8 @@ gulp.task('express', function() {
     // starts listening. If we get that message and browser sync has
     // not been established
     if(m === 'CONNECTED' && !browserSyncConnected) {
-      var msg = 'Server spawned! Starting proxy...';
-      gutil.log(gutil.colors.bgMagenta(gutil.colors.white(msg)));
+
+      boldLog('Starting BrowserSync');
 
       browserSync({
         proxy: 'localhost:' + port,
@@ -360,30 +361,21 @@ gulp.task('notify', function() {
 // Gulp - Watch
 // ------------------------------------------------------------------
 gulp.task('watch', function() {
-  gulp.watch(paths.index, ['express:watch']);
-  gulp.watch(paths.scss, ['rebuild:css']);
+  gulp.watch(paths.index, ['express']);
+  gulp.watch(paths.scss, ['sass']);
   gulp.watch(paths.jsx.concat(paths.scss), ['notify']);
 });
-
-gulp.task('build:css:watch', ['sass'], ready);
-gulp.task('express:watch', ['express'], ready);
-gulp.task('rebuild:css', ['sass'], ready);
 
 // Gulp - Compile
 // ===================================================================
 gulp.task('compile', function() {
   runSequence('sass', 'minifycss', 'minifyplugins:production', 'uglify', function() {
-    gutil.log(
-      gutil.colors.bgMagenta(
-        gutil.colors.red(
-          gutil.colors.bold('[          COMPLETED BUILD PROCESS          ]')
-        )
-      )
-    );
+
+    gutil.log(chalk.black.bgWhite.bold('[          BUILD PROCESS COMPLETE          ]'));
 
     console.log('\nTo start the Express application:\n');
     console.log('node ' + paths.express + '\n');
-    // Exit
+
     process.exit();
   });
 });
