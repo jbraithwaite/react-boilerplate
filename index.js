@@ -1,5 +1,5 @@
 // Allow for jsx files
-require('node-jsx').install();
+require('node-jsx').install({extension: '.jsx'});
 
 // Requires
 // -----------------------------------------------------------------------------
