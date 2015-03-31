@@ -12,7 +12,6 @@ var package = require('./package.json');
 var express = require('express');
 var ReactRouter = require('react-router');
 var compression = require('compression');
-var expressBeautify = require('express-beautify');
 
 var app = express();
 
@@ -24,11 +23,6 @@ app.use(express.static(path.join(process.cwd(), 'public')));
 // Let the config file overrule the environment
 var port = config.get('port');
 var environment = config.get('environment');
-
-// Only use expressBeautify on development
-if (environment == 'development') {
-  app.use(expressBeautify());
-}
 
 // React App - Rendering
 // -----------------------------------------------------------------------------
