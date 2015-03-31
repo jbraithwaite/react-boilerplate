@@ -41,8 +41,14 @@ var paths = {
   // Watch - browsersync
   jsx: ['app/**/*.jsx'],
 
+  // Watch - App
+  appRoot: 'app',
+
   // Watch - browsersync
-  scss: ['stylesheets/**/*.scss'],
+  sass: ['stylesheets/**/*.s[ac]ss'],
+
+  // Path - The sass entry point
+  sassEntryPoint: './stylesheets/main.scss',
 
   // Path - The start of the React App (the router)
   reactEntryPoint: './app/router.jsx',
@@ -53,47 +59,15 @@ var paths = {
     css : './public/css',
     img : './public/img',
     font : './public/font'
-  },
-
-  // Why bloat our "application.js" file with third party plugins?
-  // If we move these files to `external.js`, it won't change as often as our
-  // "application.js" and can be more aggresively cached by the user's browser.
-  //
-  // This is a two step process.
-  //
-  // Step one: Add the files to both dev and pro below
-  // (make sure to link to the minified version in production)
-  //
-  // Step two: See externals below to make sure the file is not included.
-  minifyplugins : {
-    development : [
-      './node_modules/react/dist/react-with-addons.js',
-      './node_modules/react-router/dist/react-router.js'
-    ],
-    production : [
-      './node_modules/react/dist/react-with-addons.min.js',
-      './node_modules/react-router/dist/react-router.min.js'
-    ]
   }
 };
 
 // Webpack config
 // ------------------------------------------------------------------
 
-// If you require('module-name') and want to take advantage of moving this file
-// to external.js (instead of having it bundled with our "application.js")
-// we add it to the extenals of webpack.
-//
-// For example, we would add "module-name" : "ModuleOnGlobalNameSpace"
-var externals = {
-  "react": "React",
-  "react/addons": "React",
-  "react-router": "ReactRouter"
-};
-
 // The loaders for webpack and webpack dev server
 var loaders = [
-  {test: /[\.jsx|\.js]$/, loaders: ['react-hot', 'jsx-loader?harmony']}
+  {test: /[\.jsx|\.js]$/, loaders: ['react-hot', 'jsx-loader?harmony'], exclude: /node_modules/}
 ];
 
 // Utility Functions
@@ -111,14 +85,16 @@ function boldLog(data){
 }
 
 // Browser Sync
-var createMonitor = function() {
+var createMonitor = function(options) {
+
+  options = options || {};
 
   var callback = function(file) {
     browserSync.reload(file);
   };
 
   return function(path) {
-    watch.createMonitor(path, function(monitor) {
+    watch.createMonitor(path, options, function(monitor) {
       monitor.on('created', callback);
       monitor.on('changed', callback);
       monitor.on('removed', callback);
@@ -132,6 +108,14 @@ if(environment == 'development') {
   monitors.images = createMonitor();
   monitors.images(paths.public.img);
 
+  // monitors.js = createMonitor({
+  //   filter: function(file){
+  //     return file.substring(file.length - 3) !== '.js';
+  //   }
+  // });
+
+  // monitors.js(paths.appRoot);
+
   // Add any additonal monitors here.
 }
 
@@ -142,10 +126,10 @@ if(environment == 'development') {
 /**
  * sass
  *
- * Convert the stylesheets from scss to css
+ * Convert the stylesheets from sass to css
  */
 gulp.task('sass', function() {
-  return gulp.src('./stylesheets/*.scss')
+  return gulp.src(paths.sassEntryPoint)
     .pipe(sass({
       // Helpful for debugging
       sourceComments: 'normal'
@@ -169,7 +153,7 @@ gulp.task('sass', function() {
  *
  * Takes the stylesheet in the public css folder and minifies it
  */
-gulp.task('minifycss', function() {
+gulp.task('minifycss', ['sass'],function() {
   return gulp.src([paths.public.css + '/main.css'])
     .pipe(minifycss())
     .pipe(rename('main.min.css'))
@@ -204,8 +188,7 @@ gulp.task('react:development', function() {
     ],
     module: {
       loaders: loaders
-    },
-    externals: externals,
+    }
   };
 
   var server = new WebpackDevServer(dwebpack(wconfig), {
@@ -229,23 +212,30 @@ gulp.task('react:development', function() {
  *
  * No WebpackDevServer or react-hot
  */
-gulp.task('react:compile', function() {
-  return gulp.src(paths.reactEntryPoint)
-    .pipe(webpack({
-      cache: false,
+gulp.task('react:compile', function(callback) {
+
+    dwebpack({
+      cache: true,
+      entry: {
+        app: paths.reactEntryPoint,
+      },
+      output: {
+        filename: paths.public.js + '/' + appName + '.js'
+      },
       module: {
         loaders: loaders
-      },
-      externals: externals
-    }))
-    .pipe(rename(appName+'.js'))
-    .pipe(gulp.dest(paths.public.js));
+      }
+
+    }, function(err, stats) {
+        if (err) console.log(err);
+        callback();
+    });
 });
 
 /**
  * Ugify React App
  */
-gulp.task('uglify', ['react:compile'], function() {
+gulp.task('uglify:app', ['react:compile'], function() {
   return gulp.src(paths.public.js + '/' + appName + '.js')
     .pipe(uglify(appName + '.min.js', {
       preserveComments: false,
@@ -254,36 +244,6 @@ gulp.task('uglify', ['react:compile'], function() {
       }
     }))
     .pipe(insert.prepend(banner()))
-    .pipe(gulp.dest(paths.public.js));
-});
-
-// Gulp - "Minify" 3rd party plugins
-// ------------------------------------------------------------------
-
-/**
- * "Minify" plugins for development
- *
- * To increase speed, we concat the 3rd part plugins into a file
- * "external.js" and serve that outside of the React App. This
- * file changes a lot less often then the App will.
- *
- * The plugins will attached at the global namepace
- * (on the client: window)
- */
-gulp.task('minifyplugins:development', function() {
-  gulp.src(paths.minifyplugins.development).pipe(concat('external.js'))
-    .pipe(gulp.dest(paths.public.js));
-});
-
-/**
- * "Minify plugins for production"
- *
- * Instead of using uglify, simply concat the already minified files.
- * In the case of React, this will allow you to skip development code
- * as well. Resulting in smaller file.
- */
-gulp.task('minifyplugins:production', function() {
-  gulp.src(paths.minifyplugins.production).pipe(concat('external.min.js'))
     .pipe(gulp.dest(paths.public.js));
 });
 
@@ -362,26 +322,23 @@ gulp.task('notify', function() {
 // ------------------------------------------------------------------
 gulp.task('watch', function() {
   gulp.watch(paths.index, ['express']);
-  gulp.watch(paths.scss, ['sass']);
-  gulp.watch(paths.jsx.concat(paths.scss), ['notify']);
+  gulp.watch(paths.sass, ['sass']);
+  gulp.watch(paths.jsx.concat(paths.sass), ['notify']);
 });
 
 // Gulp - Compile
 // ===================================================================
-gulp.task('compile', function() {
-  runSequence('sass', 'minifycss', 'minifyplugins:production', 'uglify', function() {
+gulp.task('compile', ['minifycss', 'uglify:app'], function() {
+  gutil.log(chalk.black.bgWhite.bold('[          BUILD PROCESS COMPLETE          ]'));
 
-    gutil.log(chalk.black.bgWhite.bold('[          BUILD PROCESS COMPLETE          ]'));
+  console.log('\nTo start the Express application:\n');
+  console.log('node ' + paths.express + '\n');
 
-    console.log('\nTo start the Express application:\n');
-    console.log('node ' + paths.express + '\n');
-
-    process.exit();
-  });
+  process.exit();
 });
 
 // Gulp - Default
 // ===================================================================
 gulp.task('default', function(callback) {
-  runSequence('react:development', 'sass', 'minifyplugins:development', ['express', 'watch'], callback);
+  runSequence('react:development', ['sass', 'express', 'watch'], callback);
 });

@@ -5,7 +5,7 @@ html(lang="en")
   head
     meta(charset="utf-8")
     meta(name="viewport" content="width=device-width, initial-scale=1")
-    link(rel="icon" type="image/png" href="/favicon.ico")/
+    link(rel="stylesheet" href="/css/main#{minified}.css" type="text/css")/
     link(rel="stylesheet" href="/css/main#{minified}.css" type="text/css")/
     title!= title
 
@@ -25,10 +25,6 @@ html(lang="en")
             | #{environment} •&nbsp;
             strong app name :&nbsp;
             | #{appName}
-
-    //- external.js contains all the pluggins used in the app, this file doesn't
-    //- change as often as our app.js and can be cached better by the browser.
-    script(src="/js/external#{minified}.js")
 
     if HOT_RELOAD
       //- When using webpack, we use the bundle instead of the compiled source
