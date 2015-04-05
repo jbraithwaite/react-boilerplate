@@ -3,8 +3,6 @@ require('node-jsx').install({extension: '.jsx'});
 
 // Requires
 // -----------------------------------------------------------------------------
-var fs = require('fs');
-var path = require('path');
 var React = require('react/addons');
 var config = require('config');
 var routes = require('./app/routes.jsx');
@@ -18,7 +16,7 @@ var app = express();
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.use(compression());
-app.use(express.static(path.join(process.cwd(), 'public')));
+app.use(express.static( __dirname + '/public'));
 
 // Let the config file overrule the environment
 var port = config.get('port');
